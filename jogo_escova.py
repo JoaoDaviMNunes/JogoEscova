@@ -82,14 +82,24 @@ def pontuacao_total(p1, p2):
     elif p2['7s'] > p1['7s']: pt2 += 1
     return pt1, pt2
 
+def verifica_final_partida(ponto_user, ponto_maq, ponto_max):
+    if ponto_user == ponto_maq:
+        return False
+    elif ponto_user >= ponto_max and ponto_user > ponto_maq:
+        return True
+    elif ponto_maq >= ponto_max and ponto_maq > ponto_user:
+        return True
+    else:
+        return False
+
+# Jogo principal
 def main():
-    # Jogo principal
     print("ESCOVA - Usuário vs Máquina")
     ponto_max = int(input("Pontuação máxima para vencer: "))
 
     placar = {'usuario': 0, 'maquina': 0}
 
-    while placar['usuario'] < ponto_max and placar['maquina'] < ponto_max:
+    while not verifica_final_partida(placar['usuario'], placar['maquina'], ponto_max):
         baralho = embaralhar_cartas()
         mesa = [baralho.pop() for _ in range(4)]
         pilha_usuario, pilha_maquina = [], []
@@ -194,19 +204,21 @@ def main():
 
         # Mostrar placar
         print("\nFIM DA RODADA")
-        print(f"Pontos do Usuário nesta rodada: {ptu} (Total: {placar['usuario']})")
-        print(f"Pontos da Máquina nesta rodada: {ptm} (Total: {placar['maquina']})")
+        print(f"Pontos do Usuário 🧠 nesta rodada: {ptu} (Total: {placar['usuario']})")
+        print(f"Pontos da Máquina 🤖 nesta rodada: {ptm} (Total: {placar['maquina']})")
         inp = entrada_sim_nao("\nContinuar para a próxima rodada? (s/n): ")
         if inp == 'n':
             break
 
     limpar()
-    print(f"Total: {placar['usuario']}")
-    print(f"Total: {placar['maquina']}")
-    if placar['usuario'] >= ponto_max:
+    print(f"🧠 Pontuação Final Usuário: {placar['usuario']}")
+    print(f"🤖 Pontuação Final Máquina: {placar['maquina']}")
+    if placar['usuario'] >= ponto_max or placar['usuario'] > placar['maquina']:
         print("🎉 Você venceu a partida!")
-    else:
+    elif placar['maquina'] >= ponto_max or placar['usuario'] < placar['maquina']:
         print("🤖 A máquina venceu a partida!")
+    else:
+        print("😲 Jogo terminou empatado!")
 
 if __name__ == "__main__":
     main()
