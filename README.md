@@ -65,11 +65,18 @@ Ao final de cada rodada, os seguintes pontos são avaliados:
 - Python 3.6 ou superior instalado
 - Terminal (CMD, Bash, ou Terminal do VS Code)
 
-### Passos
+### Passos para Jogar contra a Máquina
 ```
 git clone https://github.com/JoaoDaviMNunes/JogoEscova.git
 cd JogoEscova
-python3 jogo_escova.py
+python3 pve_jogo.py
+```
+
+### Passos para PVP Local
+```
+git clone https://github.com/JoaoDaviMNunes/JogoEscova.git
+cd JogoEscova
+python3 pvp_jogo.py
 ```
 
 ## 6. 👨‍💻 Desenvolvedor
