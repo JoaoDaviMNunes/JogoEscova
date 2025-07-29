@@ -83,12 +83,16 @@ def pontuacao_total(p1, p2):
     return pt1, pt2
 
 def verifica_final_partida(ponto_user, ponto_maq, ponto_max):
+    # pontuações iguais = jogo continua
     if ponto_user == ponto_maq:
         return False
+    # acima da pontuação máxima e maior que a máquina = o usuário ganha
     elif ponto_user >= ponto_max and ponto_user > ponto_maq:
         return True
+    # acima da pontuação máxima e maior que o usuário = a máquina ganha
     elif ponto_maq >= ponto_max and ponto_maq > ponto_user:
         return True
+    # ambos jogadores não possuem pontuação para ganhar = jogo continua
     else:
         return False
 
@@ -99,9 +103,10 @@ def main():
     ponto_max = int(input("Pontuação máxima para vencer: "))
 
     placar = {'usuario': 0, 'maquina': 0}
-    usuario_comeca = entrada_sim_nao("O usuário ser o primeiro a jogar na primeira rodada? (s/n): ")
+    usuario_comeca = entrada_sim_nao("O usuário será o primeiro a jogar na primeira rodada? (s/n): ")
+    fimjogo = verifica_final_partida(placar['usuario'], placar['maquina'], ponto_max)
 
-    while not verifica_final_partida(placar['usuario'], placar['maquina'], ponto_max):
+    while not fimjogo:
         baralho = embaralhar_cartas()
         mesa = [baralho.pop() for _ in range(4)]
         pilha_usuario, pilha_maquina = [], []
@@ -114,7 +119,7 @@ def main():
             for i in range(3):
                 limpar()
                 print(f"Usuário: {placar['usuario']} \t Máquina: {placar['maquina']}")
-                print(f"Cartas restantes no baralho: {len(baralho)}")
+                print(f"Cartas restantes no baralho: {len(baralho)}\n")
 
                 if usuario_comeca:
                     # Jogada Usuário
@@ -177,7 +182,7 @@ def main():
                         mesa.append(carta_m)
                         print(f"Máquina não capturou nada com {carta_m}")
 
-                    time.sleep(3)
+                    time.sleep(5)
                 else:
                     # Jogada da máquina
                     print("Máquina pensando...")
@@ -197,7 +202,7 @@ def main():
                         mesa.append(carta_m)
                         print(f"Máquina não capturou nada com {carta_m}")
 
-                    time.sleep(3)
+                    time.sleep(5)
 
                     # Jogada Usuário
                     print(f"\n----------------\n\nMesa: {mostrar_cartas(mesa)}")
@@ -275,22 +280,24 @@ def main():
         placar['maquina'] += ptm
 
         # Mostrar placar
+        troca_rodada = 15
         print("\nFIM DA RODADA")
         print(f"Pontos do Usuário 🧠 nesta rodada: {ptu} (Total: {placar['usuario']})")
         print(f"Pontos da Máquina 🤖 nesta rodada: {ptm} (Total: {placar['maquina']})")
-        inp = entrada_sim_nao("\nContinuar para a próxima rodada? (s/n): ")
-        if not inp:
-            break
+        print(f"\nContinuando daqui {troca_rodada} segundos...")
+        time.sleep(troca_rodada)
+
+        fimjogo = verifica_final_partida(placar['usuario'], placar['maquina'], ponto_max)
 
     limpar()
     print(f"🧠 Pontuação Final Usuário: {placar['usuario']}")
     print(f"🤖 Pontuação Final Máquina: {placar['maquina']}")
     if placar['usuario'] >= ponto_max or placar['usuario'] > placar['maquina']:
-        print("🎉 Você venceu a partida!")
+        print("\n🎉 Você venceu a partida! 🎉")
     elif placar['maquina'] >= ponto_max or placar['usuario'] < placar['maquina']:
-        print("🤖 A máquina venceu a partida!")
+        print("\n🤖 A máquina venceu a partida! 🤖")
     else:
-        print("😲 Jogo terminou empatado!")
+        print("\n😲 Jogo terminou empatado! 😲")
 
 if __name__ == "__main__":
     main()
