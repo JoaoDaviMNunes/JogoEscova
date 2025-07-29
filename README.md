@@ -1,4 +1,4 @@
-# 🃏 Escova Terminal - Usuário vs Máquina
+# 🃏 Escova - Usuário vs Máquina
 
 ## 1. 🎮 Nome do Jogo
 
