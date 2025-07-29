@@ -13,9 +13,9 @@ def entrada_sim_nao(mensagem):
     while True:
         resposta = input(mensagem).strip().lower()
         if resposta in ['s', 'sim', 'Sim']:
-            return 's'
+            return True
         elif resposta in ['n', 'nao', 'não', 'Nao', 'Não']:
-            return 'n'
+            return False
         print("❌ Entrada inválida! Digite 's' para sim ou 'n' para não.")
 
 def valor(carta):
@@ -94,10 +94,12 @@ def verifica_final_partida(ponto_user, ponto_maq, ponto_max):
 
 # Jogo principal
 def main():
+    limpar()
     print("ESCOVA - Usuário vs Máquina")
     ponto_max = int(input("Pontuação máxima para vencer: "))
 
     placar = {'usuario': 0, 'maquina': 0}
+    usuario_comeca = entrada_sim_nao("O usuário ser o primeiro a jogar na primeira rodada? (s/n): ")
 
     while not verifica_final_partida(placar['usuario'], placar['maquina'], ponto_max):
         baralho = embaralhar_cartas()
@@ -111,67 +113,136 @@ def main():
 
             for i in range(3):
                 limpar()
+                print(f"Usuário: {placar['usuario']} \t Máquina: {placar['maquina']}")
                 print(f"Cartas restantes no baralho: {len(baralho)}")
-                print(f"Mesa: {mostrar_cartas(mesa)}")
-                print("Suas cartas:")
-                for idx, carta in enumerate(mao_usuario):
-                    print(f"[{idx+1}] {carta}")
 
-                try:
-                    escolha = int(input("Escolha a carta para jogar (número): ")) - 1
-                    carta = mao_usuario[escolha]
-                except (ValueError, IndexError):
-                    while True:
-                        try:
-                            escolha = int(input("Entrada inválida. Escolha um número válido: ")) - 1
-                            carta = mao_usuario[escolha]
-                            break
-                        except (ValueError, IndexError):
-                            continue
+                if usuario_comeca:
+                    # Jogada Usuário
+                    print(f"Mesa: {mostrar_cartas(mesa)}")
+                    print("Suas cartas:")
+                    for idx, carta in enumerate(mao_usuario):
+                        print(f"[{idx+1}] {carta}")
+                    try:
+                        escolha = int(input("Escolha a carta para jogar (número): ")) - 1
+                        carta = mao_usuario[escolha]
+                    except (ValueError, IndexError):
+                        while True:
+                            try:
+                                escolha = int(input("Entrada inválida. Escolha um número válido: ")) - 1
+                                carta = mao_usuario[escolha]
+                                break
+                            except (ValueError, IndexError):
+                                continue
 
-                mao_usuario.pop(escolha)
-                jogadas = somas_possiveis(mesa, 15 - valor(carta))
-                melhores_jogadas = []
-                for comb in jogadas:
-                    prioridade = 0
-                    if any(c[:-1] == '7' for c in comb): prioridade += 3
-                    if any(c[-1] == '♦' for c in comb): prioridade += 2
-                    prioridade += len(comb)
-                    melhores_jogadas.append((prioridade, comb))
+                    mao_usuario.pop(escolha)
+                    jogadas = somas_possiveis(mesa, 15 - valor(carta))
+                    melhores_jogadas = []
+                    for comb in jogadas:
+                        prioridade = 0
+                        if any(c[:-1] == '7' for c in comb): prioridade += 3
+                        if any(c[-1] == '♦' for c in comb): prioridade += 2
+                        prioridade += len(comb)
+                        melhores_jogadas.append((prioridade, comb))
 
-                if melhores_jogadas:
-                    melhores_jogadas.sort(reverse=True, key=lambda x: x[0])
-                    cartas_pegar = melhores_jogadas[0][1]
-                    for c in cartas_pegar:
-                        mesa.remove(c)
-                    pilha_usuario.extend(cartas_pegar + [carta])
-                    print(f"Você capturou: {mostrar_cartas(cartas_pegar)} com {carta}")
-                    if not mesa:
-                        escovas_usuario += 1
+                    if melhores_jogadas:
+                        melhores_jogadas.sort(reverse=True, key=lambda x: x[0])
+                        cartas_pegar = melhores_jogadas[0][1]
+                        for c in cartas_pegar:
+                            mesa.remove(c)
+                        pilha_usuario.extend(cartas_pegar + [carta])
+                        print(f"Você capturou: {mostrar_cartas(cartas_pegar)} com {carta}")
+                        if not mesa:
+                            escovas_usuario += 1
+                    else:
+                        mesa.append(carta)
+                        print(f"Você não capturou nada com {carta}")
+
+                    time.sleep(2)
+
+                    # Jogada da máquina
+                    print("\n-------------------\n\nMáquina pensando...")
+                    print(f"Mesa: {mostrar_cartas(mesa)}")
+                    time.sleep(1)
+                    carta_m, pegou = escolher_jogada_maquina(mao_maquina, mesa)
+                    print(f"Máquina jogou: {carta_m}")
+                    mao_maquina.remove(carta_m)
+                    if pegou:
+                        for c in pegou:
+                            mesa.remove(c)
+                        pilha_maquina.extend(pegou + [carta_m])
+                        print(f"Máquina capturou: {mostrar_cartas(pegou)} com {carta_m}")
+                        if not mesa:
+                            escovas_maquina += 1
+                    else:
+                        mesa.append(carta_m)
+                        print(f"Máquina não capturou nada com {carta_m}")
+
+                    time.sleep(3)
                 else:
-                    mesa.append(carta)
-                    print(f"Você não capturou nada com {carta}")
+                    # Jogada da máquina
+                    print("Máquina pensando...")
+                    print(f"Mesa: {mostrar_cartas(mesa)}")
+                    time.sleep(1)
+                    carta_m, pegou = escolher_jogada_maquina(mao_maquina, mesa)
+                    print(f"Máquina jogou: {carta_m}")
+                    mao_maquina.remove(carta_m)
+                    if pegou:
+                        for c in pegou:
+                            mesa.remove(c)
+                        pilha_maquina.extend(pegou + [carta_m])
+                        print(f"Máquina capturou: {mostrar_cartas(pegou)} com {carta_m}")
+                        if not mesa:
+                            escovas_maquina += 1
+                    else:
+                        mesa.append(carta_m)
+                        print(f"Máquina não capturou nada com {carta_m}")
 
-                time.sleep(2)
+                    time.sleep(3)
 
-                # Jogada da máquina
-                print("\nMáquina pensando...")
-                time.sleep(1)
-                carta_m, pegou = escolher_jogada_maquina(mao_maquina, mesa)
-                print(f"Máquina jogou: {carta_m}")
-                mao_maquina.remove(carta_m)
-                if pegou:
-                    for c in pegou:
-                        mesa.remove(c)
-                    pilha_maquina.extend(pegou + [carta_m])
-                    print(f"Máquina capturou: {mostrar_cartas(pegou)} com {carta_m}")
-                    if not mesa:
-                        escovas_maquina += 1
-                else:
-                    mesa.append(carta_m)
-                    print(f"Máquina não capturou nada com {carta_m}")
+                    # Jogada Usuário
+                    print(f"\n----------------\n\nMesa: {mostrar_cartas(mesa)}")
+                    print("Suas cartas:")
+                    for idx, carta in enumerate(mao_usuario):
+                        print(f"[{idx+1}] {carta}")
+                    try:
+                        escolha = int(input("Escolha a carta para jogar (número): ")) - 1
+                        carta = mao_usuario[escolha]
+                    except (ValueError, IndexError):
+                        while True:
+                            try:
+                                escolha = int(input("Entrada inválida. Escolha um número válido: ")) - 1
+                                carta = mao_usuario[escolha]
+                                break
+                            except (ValueError, IndexError):
+                                continue
 
-                time.sleep(3)
+                    mao_usuario.pop(escolha)
+                    jogadas = somas_possiveis(mesa, 15 - valor(carta))
+                    melhores_jogadas = []
+                    for comb in jogadas:
+                        prioridade = 0
+                        if any(c[:-1] == '7' for c in comb): prioridade += 3
+                        if any(c[-1] == '♦' for c in comb): prioridade += 2
+                        prioridade += len(comb)
+                        melhores_jogadas.append((prioridade, comb))
+
+                    if melhores_jogadas:
+                        melhores_jogadas.sort(reverse=True, key=lambda x: x[0])
+                        cartas_pegar = melhores_jogadas[0][1]
+                        for c in cartas_pegar:
+                            mesa.remove(c)
+                        pilha_usuario.extend(cartas_pegar + [carta])
+                        print(f"Você capturou: {mostrar_cartas(cartas_pegar)} com {carta}")
+                        if not mesa:
+                            escovas_usuario += 1
+                    else:
+                        mesa.append(carta)
+                        print(f"Você não capturou nada com {carta}")
+
+                    time.sleep(2)
+        
+        # trocando a ordem de jogada (usuário ou máquina primeiro)
+        usuario_comeca = not usuario_comeca
 
         # Sobras na mesa vão para quem jogou por último (máquina)
         pilha_maquina.extend(mesa)
@@ -179,8 +250,9 @@ def main():
         # Contar pontos
         pontos_u = contar_pontos(pilha_usuario)
         pontos_m = contar_pontos(pilha_maquina)
-
-        print("\nPontuação da rodada:")
+        
+        limpar()
+        print("Pontuação da rodada:")
         print("Usuário:")
         print(f" - Total de cartas: {pontos_u['cartas']}")
         print(f" - Ouros: {pontos_u['ouros']}")
@@ -207,7 +279,7 @@ def main():
         print(f"Pontos do Usuário 🧠 nesta rodada: {ptu} (Total: {placar['usuario']})")
         print(f"Pontos da Máquina 🤖 nesta rodada: {ptm} (Total: {placar['maquina']})")
         inp = entrada_sim_nao("\nContinuar para a próxima rodada? (s/n): ")
-        if inp == 'n':
+        if not inp:
             break
 
     limpar()
