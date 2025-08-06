@@ -162,7 +162,7 @@ def main():
                         mesa.append(carta)
                         print(f"Você não capturou nada com {carta}")
 
-                    time.sleep(2)
+                    time.sleep(1)
 
                     # Jogada da máquina
                     print("\n-------------------\n\nMáquina pensando...")
@@ -182,7 +182,7 @@ def main():
                         mesa.append(carta_m)
                         print(f"Máquina não capturou nada com {carta_m}")
 
-                    time.sleep(5)
+                    time.sleep(3)
                 else:
                     # Jogada da máquina
                     print("Máquina pensando...")
@@ -202,7 +202,7 @@ def main():
                         mesa.append(carta_m)
                         print(f"Máquina não capturou nada com {carta_m}")
 
-                    time.sleep(5)
+                    time.sleep(3)
 
                     # Jogada Usuário
                     print(f"\n----------------\n\nMesa: {mostrar_cartas(mesa)}")
@@ -244,7 +244,7 @@ def main():
                         mesa.append(carta)
                         print(f"Você não capturou nada com {carta}")
 
-                    time.sleep(2)
+                    time.sleep(1)
         
         # trocando a ordem de jogada (usuário ou máquina primeiro)
         usuario_comeca = not usuario_comeca
